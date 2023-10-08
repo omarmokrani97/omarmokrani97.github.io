@@ -25,18 +25,20 @@
     .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
     .showGraticules(true)
     .showAtmosphere(false) // moon has no atmosphere
-    // point label 
-
-
-
+    // point label
+    .pointAltitude((e) =>{
+      return Math.exp(e.magnitude)/100
+    })
+    .pointLabel(d => `
+        <div>Magnitude : <b>${d.magnitude}</b></div>
+        <div>Time : <i>${new Date(d.date).toLocaleDateString()}</i></div>
+    `)
 
     // rings label 
     .ringColor(() => '#2500ff')
     .ringMaxRadius((e) =>{
-      return e.magnitude
+      return  e.magnitude
     })
-    
-
 
     // text lable 
     .labelText('label')
@@ -52,10 +54,6 @@
       `)
     .onLabelClick(d => window.open(d.url, '_blank'))
     (elem);
-
-    
-    
-  
 
   fetch('./moon_landings.json').then(r => r.json()).then(landingSites => {
     moon.labelsData(landingSites);
