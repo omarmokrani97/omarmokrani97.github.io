@@ -1,0 +1,75 @@
+<head>
+  <title>IKDAM Moonquake Map 2023 </title>
+  <style> body { margin: 0; } </style>
+
+  <script src="//unpkg.com/d3-array"></script>
+  <script src="//unpkg.com/d3-scale"></script>
+
+  <script src="//unpkg.com/globe.gl"></script>
+  <!--<script src="../../dist/globe.gl.js"></script>-->
+</head>
+
+<body>
+<div id="globeViz"></div>
+
+<script>
+  const colorScale = d3.scaleOrdinal(['orangered', 'mediumblue', 'darkgreen', 'yellow']);
+
+  const labelsTopOrientation = new Set(['Apollo 12']); // avoid label collisions
+
+
+  const elem = document.getElementById('globeViz');
+  const moon = Globe()
+    .globeImageUrl('./moon_basecolor.jpg')
+    .bumpImageUrl('./ldem_16_uint.jpg')
+    .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+    .showGraticules(true)
+    .showAtmosphere(false) // moon has no atmosphere
+    // point label 
+
+
+
+
+    // rings label 
+    .ringColor(() => '#2500ff')
+    .ringMaxRadius((e) =>{
+      return e.magnitude
+    })
+    
+
+
+    // text lable 
+    .labelText('label')
+    .labelAltitude(0.009)
+    .labelSize(1.7)
+    .labelDotRadius(0.4)
+    .labelDotOrientation(d => labelsTopOrientation.has(d.label) ? 'top' : 'bottom')
+    .labelColor(() => '#daff00')
+    .labelLabel(d => `
+        <div><b>${d.label}</b></div>
+        <div>${d.agency} - ${d.program} Program</div>
+        <div>Landing on <i>${new Date(d.date).toLocaleDateString()}</i></div>
+      `)
+    .onLabelClick(d => window.open(d.url, '_blank'))
+    (elem);
+
+    
+    
+  
+
+  fetch('./moon_landings.json').then(r => r.json()).then(landingSites => {
+    moon.labelsData(landingSites);
+  });  
+
+  fetch('./nakamura_1979_sm_locations.json').then(d => d.json()).then(seism => {
+    moon.ringsData(seism.events);
+  });
+  fetch('./nakamura_1979_sm_locations.json').then(d => d.json()).then(seism_ => {
+    moon.pointsData(seism_.events);
+  });
+
+  
+  
+
+</script>
+</body>
